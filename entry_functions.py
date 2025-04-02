@@ -2,7 +2,7 @@
 
 
 from json import load, dump
-from uuid import uuid5
+from uuid import uuid4
 from datetime import datetime
 
 
@@ -26,11 +26,13 @@ def save_new_entry(entry: dict, filename: str = "data.json") -> dict:
     """Saves an entry to a data file."""
     entries = load_all_entries(filename)
 
-    entry["id"] = uuid5()
+    entry["id"] = str(uuid4())
     if "title" not in entry:
         entry["title"] = None
-    entry["created_at"] = datetime.now()
+    entry["created_at"] = datetime.now().isoformat()
     entries.append(entry)
 
     with open(filename, "w", encoding="utf-8") as f:
-        dump(entries, f)
+        dump(entries, f, indent=4)
+
+    return entry

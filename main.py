@@ -20,6 +20,13 @@ def get_or_create_entries():
 
     if request.method == "GET":
         entries = load_all_entries()
+        parameters = request.args
+
+        if "author" in parameters:
+            author = parameters["author"]
+            entries = [e for e in entries if e["author"].lower() ==
+                       author.lower()]
+
         return entries
     else:
         new_entry = request.json
