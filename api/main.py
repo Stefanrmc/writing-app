@@ -3,9 +3,10 @@
 
 from flask import Flask, request
 
-from entry_functions import load_all_entries, is_valid_entry, save_new_entry
+from database_functions import load_all_entries, is_valid_entry, save_new_entry, get_db_connection
 
 api = Flask(__name__)
+conn = get_db_connection()
 
 
 @api.get("/")
@@ -19,7 +20,7 @@ def index():
 def get_or_create_entries():
 
     if request.method == "GET":
-        entries = load_all_entries()
+        entries = load_all_entries(conn)
         parameters = request.args
 
         if "author" in parameters:
@@ -30,13 +31,13 @@ def get_or_create_entries():
         return entries
     else:
         new_entry = request.json
-        if is_valid_entry(entry):
-            created_entry = save_new_entry(new_entry)
+        if is_valid_entry(new_entry):
+            created_entry = save_new_entry(conn, new_entry)
             return created_entry, 201
         else:
             return {"error": True, "message": "Invalid entry."}, 400
 
 
 if __name__ == "__main__":
-
-    api.run(port=8080, debug=True)
+    with get_db_connection() as conn:
+        api.run(port=8080, debug=True)
